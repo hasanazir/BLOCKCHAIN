@@ -1,0 +1,27 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract UserAuthentication {
+    mapping(address => bool) public registeredUsers;
+
+    // Event to log user registration
+    event UserRegistered(address indexed user);
+
+    // Modifier to check if the sender is a registered user
+    modifier onlyRegisteredUser() {
+        require(registeredUsers[msg.sender] == true, "User not registered");
+        _;
+    }
+
+    // Function to register a user
+    function registerUser() public {
+        require(registeredUsers[msg.sender] == false, "User already registered");
+        registeredUsers[msg.sender] = true;
+        emit UserRegistered(msg.sender);
+    }
+
+    // Function to authenticate a user
+    function authenticate() public view onlyRegisteredUser returns (bool) {
+        return true; // Authentication successful
+    }
+}
