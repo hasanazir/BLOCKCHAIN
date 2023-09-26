@@ -1,0 +1,35 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract AuthenticationPolicy {
+    address public owner;
+    mapping(address => bool)  authorizedStakeholders;
+
+    event StakeholderAuthorized(address indexed stakeholder);
+    event StakeholderRevoked(address indexed stakeholder);
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only the owner can perform this action");
+        _;
+    }
+
+    constructor() {
+        owner = msg.sender;
+    }
+
+    function authorizeStakeholder(address _stakeholder) public onlyOwner {
+        require(_stakeholder != address(0), "Invalid address");
+        authorizedStakeholders[_stakeholder] = true;
+        emit StakeholderAuthorized(_stakeholder);
+    }
+
+    function revokeStakeholder(address _stakeholder) public onlyOwner {
+        require(authorizedStakeholders[_stakeholder], "Stakeholder is not authorized");
+        authorizedStakeholders[_stakeholder] = false;
+        emit StakeholderRevoked(_stakeholder);
+    }
+
+    function isStakeholderAuthorized(address _stakeholder) public view returns (bool) {
+        return authorizedStakeholders[_stakeholder];
+    }
+}
