@@ -1,0 +1,44 @@
+// SPDX-License-Identifier: MIT
+//get funds from users
+//withdraw funds
+// send a minimum funding value in usd
+pragma solidity ^0.8.0;
+import "./priceconverter.sol";
+contract fundme{
+    using priceconverter for uint256;
+    uint256 public min=50*1e18;
+    address[] public funders;
+    mapping(address=>uint256)public addtoamt;
+    address public owner;
+    constructor(){
+        owner=msg.sender;
+    }
+
+    function fund() public payable {
+        // set minimum amount
+        //how to send
+        require(msg.value.getcrate()>=min,"Not enough");//xey -> x * 10^y
+        //getcrate(msg.value);
+        funders.push(msg.sender);
+        addtoamt[msg.sender]=msg.value;
+    }
+    function withdraw()public onlyowner{
+        //forloop
+        for(uint256 findx=0;findx<funders.length;findx++){
+            address funder = funders[findx];
+            addtoamt[funder]=0;
+        }
+        funders=new address[](0);
+        //payable(msg.value).transfer(address(this).balance);
+       /* bool sendsuccess=payable(msg.value).send(address(this).balance);
+        require(sendsuccess,"Send Failed");*/
+        (bool callsuccess, )=payable(msg.sender).call{value: address(this).balance}("");
+        require(callsuccess,"Call Failed");
+
+    }
+    modifier onlyowner{
+        require(msg.sender==owner,"Sender is not the owner");
+        _;
+    }
+
+}
